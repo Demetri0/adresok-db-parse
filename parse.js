@@ -19,7 +19,7 @@ const fs = require('fs')
         EMAIL:         6,
     };
     let TokenRules = {
-        [Token.LITERAL]: /(^[A-ZА-Я][а-яa-z][a-zа-я \.\,\/А-Я]+)/,
+        [Token.LITERAL]: /(^[A-ZА-Я][а-яa-z][a-zа-я \-\.\,\/А-Я]+)/,
         [Token.ORGANIZATION_NAME]: /^[A-ZА-Я0-9#№,\.\-\)\(— ]+\n$/,
         [Token.STREET_NUMBER]: /,[  ]?(\d+[\.\/A-Za-zА-Яа-я ]*)/,
         [Token.STREET_NAME]: RegExp('^('+Keywords.STREET.join('|')+') ?([А-Яа-я "\'`«»]+),'),
@@ -119,7 +119,9 @@ fs.readFile('bd.txt', 'utf8', function(err, data){
     console.log( lexer.lexems() );
     //console.log( lexer.lexems().filter((item)=>{return item._token == Token.ORGANIZATION_NAME}) );
     
-
+    fs.writeFile('db.json', JSON.stringify(lexer.lexems(), null, 2), (err)=>{
+        if(err) throw err
+    })
 
 })
 
