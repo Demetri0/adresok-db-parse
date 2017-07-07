@@ -5,7 +5,7 @@ const fs = require('fs')
         OUTSIDE: 1
     };
     let Keywords = {
-        STREET: ['ул.','пр.','пл.'],
+        STREET: ['ул.','пр.','пл.','Ул.'],
         GOVERMENT: ['ГУ', 'РГУ'],
         BUSINES: ['АО','ТОО','ИП']
     };
@@ -19,7 +19,7 @@ const fs = require('fs')
         EMAIL:         6,
     };
     let TokenRules = {
-        [Token.LITERAL]: /(^[A-ZА-Я][а-яa-z][a-zа-я \-\.\,\/А-Я]+)/,
+        [Token.LITERAL]: /(^[A-ZА-Я][а-яa-zё][a-zа-яё \-\.\,\/А-Я]+)/,
         [Token.ORGANIZATION_NAME]: /^[A-ZА-Я0-9#№,\.\-\)\(— ]+\n$/,
         [Token.STREET_NUMBER]: /,[  ]?(\d+[\.\/A-Za-zА-Яа-я ]*)/,
         [Token.STREET_NAME]: RegExp('^('+Keywords.STREET.join('|')+') ?([А-Яа-я "\'`«»]+),'),
@@ -68,7 +68,6 @@ const fs = require('fs')
                     word += ch
                     if( '\n' === ch ){
                         state = State.OUTSIDE
-                        let skip = false
 
                         if( TokenRules[Token.STREET_NAME].test(word) ){
                             let street = word.match( TokenRules[Token.STREET_NAME] )[2]
@@ -77,13 +76,15 @@ const fs = require('fs')
                             this._lexems.push( new Lexem(Token.STREET_NAME, street, line) )
                             if( streetNumber ){
                                 streetNumber = streetNumber[1]
+                                streetNumber = streetNumber.trim()
                                 this._lexems.push( new Lexem(Token.STREET_NUMBER, streetNumber, line) )
                             }
-                        }
+                        } else
                         if( TokenRules[Token.ORGANIZATION_NAME].test(word) ) {
+                            word = word.replace('\n','')
                             this._lexems.push( new Lexem(Token.ORGANIZATION_NAME, word, line) )
                             continue
-                        }
+                        } else
                         if( TokenRules[Token.LITERAL].test(word) ){
                             let division = word.match(TokenRules[Token.LITERAL])
                             if( division ){
