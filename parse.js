@@ -68,6 +68,7 @@ const fs = require('fs')
                     word += ch
                     if( '\n' === ch ){
                         state = State.OUTSIDE
+                        let skip = false
 
                         if( TokenRules[Token.STREET_NAME].test(word) ){
                             let street = word.match( TokenRules[Token.STREET_NAME] )[2]
@@ -78,7 +79,6 @@ const fs = require('fs')
                                 streetNumber = streetNumber[1]
                                 this._lexems.push( new Lexem(Token.STREET_NUMBER, streetNumber, line) )
                             }
-                            continue
                         }
                         if( TokenRules[Token.ORGANIZATION_NAME].test(word) ) {
                             this._lexems.push( new Lexem(Token.ORGANIZATION_NAME, word, line) )
@@ -99,6 +99,7 @@ const fs = require('fs')
                                 this._lexems.push( new Lexem(Token.PHONE, item, line) )
                             })
                         }
+                        
 
                     }
                 }
@@ -116,7 +117,7 @@ fs.readFile('bd.txt', 'utf8', function(err, data){
     let lexer = new Lexer(data);
     lexer.run()
     console.log( lexer.lexems() );
-    //console.log( lexer.lexems().filter((item)=>{return item._token == 1}) );
+    //console.log( lexer.lexems().filter((item)=>{return item._token == Token.ORGANIZATION_NAME}) );
     
 
 
