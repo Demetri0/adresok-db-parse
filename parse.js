@@ -19,13 +19,13 @@ const fs = require('fs')
         EMAIL:         6,
     };
     let TokenRules = {
-        [Token.LITERAL]: /(^[A-ZА-Я][а-яa-zё][a-zа-яё \-\.\,\/А-Я]+)/,
+        [Token.LITERAL]: /(^[A-ZА-Я][а-яa-zё][a-zа-яё \-\.\,\/А-Я]+[0-9]{0,4})[\ ,]/,
         [Token.ORGANIZATION_NAME]: /^[A-ZА-Я0-9#№,\.\-\)\(— ]+\n$/,
         [Token.STREET_NUMBER]: /,[  ]?(\d+[\.\/A-Za-zА-Яа-я ]*)/,
         [Token.STREET_NAME]: RegExp('^('+Keywords.STREET.join('|')+') ?([А-Яа-я "\'`«»]+),'),
         [Token.PHONE]: /[7-8]{1}\d{10}|\+7\d{10}|\d{6}|(8?\(7152\))?\d{2}[- ]\d{2}[- ]\d{2}|8[- ]?7152[ -]+\d{3}[ -]+\d{3}|8\(\d+\)\d+/g, // 8(71538)22148
         [Token.URL]: /^[a-zA-Z0-9\-\.]+\.(com|org|net|mil|edu|ru|kz|pw|COM|ORG|NET|MIL|EDU|RU|KZ|PW)$/,
-        [Token.EMAIL]: /.@./,
+        [Token.EMAIL]: /[a-zA-Zа-яА-ЯёЁ0-9.\-_]+@[a-zA-Zа-яА-ЯёЁ0-9][a-zA-Zа-яА-ЯёЁ0-9\.\-_]+[a-zA-Z]{2,4}\.[\w-]{2,4}/g,
         [Token.TEXT]: ''
     };
     
@@ -90,6 +90,7 @@ const fs = require('fs')
                             if( division ){
                                 division = division[1]
                                 division = division.replace(' факс ', '')
+                                division = division.replace(/,$/,'')
                                 division = division.trim()
                                 this._lexems.push( new Lexem(Token.LITERAL, division, line) )
                             }
@@ -98,6 +99,12 @@ const fs = require('fs')
                             let phones = word.match( TokenRules[Token.PHONE] )
                             phones.forEach((item)=>{
                                 this._lexems.push( new Lexem(Token.PHONE, item, line) )
+                            })
+                        }
+                        if( TokenRules[Token.EMAIL].test(word) ){
+                            let emails = word.match( TokenRules[Token.EMAIL] )
+                            emails.forEach((item)=>{
+                                this._lexems.push( new Lexem(Token.EMAIL, item, line) )
                             })
                         }
                         
