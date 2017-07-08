@@ -24,7 +24,7 @@ const fs = require('fs')
         [Token.STREET_NUMBER]: /,[  ]?(\d+[\.\/A-Za-zА-Яа-я ]*)/,
         [Token.STREET_NAME]: RegExp('^('+Keywords.STREET.join('|')+') ?([А-Яа-я "\'`«»]+),'),
         [Token.PHONE]: /[7-8]{1}\d{10}|\+7\d{10}|\d{6}|(8?\(7152\))?\d{2}[- ]\d{2}[- ]\d{2}|8[- ]?7152[ -]+\d{3}[ -]+\d{3}|8\(\d+\)\d+/g, // 8(71538)22148
-        [Token.URL]: /^[a-zA-Z0-9\-\.]+\.(com|org|net|mil|edu|ru|kz|pw|COM|ORG|NET|MIL|EDU|RU|KZ|PW)$/,
+        [Token.URL]: /([a-zA-Z0-9\-]*\.)+[a-zA-Z0-9]{2,4}(\/[a-zA-Z0-9=.?&-]*)?/g,
         [Token.EMAIL]: /[a-zA-Zа-яА-ЯёЁ0-9.\-_]+@[a-zA-Zа-яА-ЯёЁ0-9][a-zA-Zа-яА-ЯёЁ0-9\.\-_]+[a-zA-Z]{2,4}\.[\w-]{2,4}/g,
         [Token.TEXT]: ''
     };
@@ -79,13 +79,11 @@ const fs = require('fs')
                                 streetNumber = streetNumber.trim()
                                 this._lexems.push( new Lexem(Token.STREET_NUMBER, streetNumber, line) )
                             }
-                        } else
-                        if( TokenRules[Token.ORGANIZATION_NAME].test(word) ) {
+                        } else if( TokenRules[Token.ORGANIZATION_NAME].test(word) ) {
                             word = word.replace('\n','')
                             this._lexems.push( new Lexem(Token.ORGANIZATION_NAME, word, line) )
                             continue
-                        } else
-                        if( TokenRules[Token.LITERAL].test(word) ){
+                        } else if( TokenRules[Token.LITERAL].test(word) ){
                             let division = word.match(TokenRules[Token.LITERAL])
                             if( division ){
                                 division = division[1]
@@ -95,19 +93,29 @@ const fs = require('fs')
                                 this._lexems.push( new Lexem(Token.LITERAL, division, line) )
                             }
                         }
+
                         if( TokenRules[Token.PHONE].test(word) ) {
                             let phones = word.match( TokenRules[Token.PHONE] )
                             phones.forEach((item)=>{
                                 this._lexems.push( new Lexem(Token.PHONE, item, line) )
                             })
                         }
+                        let word_copy_without_emails = word;
                         if( TokenRules[Token.EMAIL].test(word) ){
                             let emails = word.match( TokenRules[Token.EMAIL] )
                             emails.forEach((item)=>{
+                                word_copy_without_emails = word_copy_without_emails.replace(item,'')
                                 this._lexems.push( new Lexem(Token.EMAIL, item, line) )
                             })
                         }
-                        
+                        if( TokenRules[Token.URL].test(word_copy_without_emails) ){
+                            let urls = word_copy_without_emails.match( TokenRules[Token.URL] )
+                            if( urls ){                        
+                                urls.forEach((item)=>{
+                                    this._lexems.push( new Lexem(Token.URL, item, line) )
+                                })
+                            }
+                        }
 
                     }
                 }
