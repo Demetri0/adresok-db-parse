@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs)
-const {Token} = require('./Token')
+const fs = require('fs');
+const {Token} = require('./Token');
 
 (function(filename){
 
@@ -32,32 +32,32 @@ const {Token} = require('./Token')
     };
     
     function Group(name){
-        this.[FieldName.GROUP_TITLE] = tokenValue(name)
-        this.[FieldName.ORGANIZATIONS_LIST] = []
+        this[FieldName.GROUP_TITLE] = tokenValue(name)
+        this[FieldName.ORGANIZATIONS_LIST] = []
 
         this.addOrg = (org) => {
-            this.[FieldName.ORGANIZATIONS_LIST].push(org)
+            this[FieldName.ORGANIZATIONS_LIST].push(org)
         }
         return this
     }
     function Organization(title){
-        this.[FieldName.[Token.ORGANIZATION_NAME]] = tokenValue(title)
-        this.[FieldName.ADDRESSES_LIST] = []        
-        this.[FieldName.PHONES_LIST]   = []
-        this.[FieldName.EMAILS_LIST]   = []
-        this.[FieldName.URLS_LIST]     = []
+        this[FieldName[Token.ORGANIZATION_NAME]] = tokenValue(title)
+        this[FieldName.ADDRESSES_LIST] = []        
+        this[FieldName.PHONES_LIST]   = []
+        this[FieldName.EMAILS_LIST]   = []
+        this[FieldName.URLS_LIST]     = []
 
         this.addAddress = (address) => {
-            this.[FieldName.ADDRESSES_LIST].push(address)
+            this[FieldName.ADDRESSES_LIST].push(address)
         }
-        this.addPhone = (phone){
-            this.[FieldName.PHONES_LIST].push(phone)
+        this.addPhone = (phone) => {
+            this[FieldName.PHONES_LIST].push(phone)
         }
         this.addEmail = (email) => {
-            this.[FieldName.EMAILS_LIST].push(email)
+            this[FieldName.EMAILS_LIST].push(email)
         }
         this.addUrl = (url) => {
-            this.[FieldName.URLS_LIST].push(url)
+            this[FieldName.URLS_LIST].push(url)
         }
 
         return this
@@ -65,29 +65,29 @@ const {Token} = require('./Token')
     function Address(street_name, street_number){
         street_number = street_number || null
 
-        this.[FieldName.[Token.STREET_NAME]] = tokenValue(street_name)
-        this.[FieldName.[Token.STREET_NUMBER]] = tokenValue(street_number)
-        this.[FieldName.PHONES_LIST] = []
+        this[FieldName[Token.STREET_NAME]] = tokenValue(street_name)
+        this[FieldName[Token.STREET_NUMBER]] = tokenValue(street_number)
+        this[FieldName.PHONES_LIST] = []
 
         this.addPhone = (phone) => {
-            this.[FieldName.PHONES_LIST].push(phone)
+            this[FieldName.PHONES_LIST].push(phone)
         }
 
         return this
     }
     function Phone(title, phone){
-        this.[FieldName.PHONE_TITLE]   = tokenValue(title)
-        this.[FieldName.[Token.PHONE]] = tokenValue(phone)
+        this[FieldName.PHONE_TITLE]  = tokenValue(title)
+        this[FieldName[Token.PHONE]] = tokenValue(phone)
         return this
     }
     function Email(title, email){
-        this.[FieldName.EMAIL_TITLE]   = tokenValue(title)
-        this.[FieldName.[Token.EMAIL]] = tokenValue(email)
+        this[FieldName.EMAIL_TITLE]  = tokenValue(title)
+        this[FieldName[Token.EMAIL]] = tokenValue(email)
         return this
     }
     function Url(title, url){
-        this.[FieldName.URL_TITLE]   = tokenValue(title)
-        this.[FieldName.[Token.URL]] = tokenValue(url)
+        this[FieldName.URL_TITLE]  = tokenValue(title)
+        this[FieldName[Token.URL]] = tokenValue(url)
         return this
     }
 
@@ -191,8 +191,8 @@ const {Token} = require('./Token')
     fs.readFile(filename, 'utf8', function(err, data){
         if(err) throw err
 
-        let data = processData(data)
-            data = JSON.stringify(data, null, 2)
+        data = processData(data)
+        data = JSON.stringify(data, null, 2)
 
         fs.writeFile(filename+'.conv.json', data, function(err){
             if(err) throw err
