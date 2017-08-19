@@ -8,7 +8,11 @@ const {Token} = require('./Token');
     function tr(msg){
         return msg
     }
+    function token(token){
+        return token._token
+    }
     function tokenValue(token){
+        if(token === null) return null
         return token._value
     }
 
@@ -99,28 +103,21 @@ const {Token} = require('./Token');
         this.last_addr  = null
 
         this.addGroup = (group) => {
-            let o_group = new Group(group)
-            this.groups.push( o_group )
-            this.last_group = o_group
+            this.groups.push( group )
+            this.last_group = group
 
             this.last_org  = null
             this.last_addr = null
         }
         this.addOrg = (org) => {
-            let o_org = new Organization(org)
-            this.last_group.addOrg(o_org)
-            this.last_org = o_org
+            this.last_group.addOrg(org)
+            this.last_org = org
 
             this.last_addr = null
         }
-        this.addAddress = (street_name, street_number) => {
-            street_number = street_number || null
-
-            let o_addr = new Address(street_name, street_number)
-
-            this.last_org.addAddress(o_addr)
-            
-            this.last_addr = o_addr
+        this.addAddress = (addr) => {
+            this.last_org.addAddress(addr)
+            this.last_addr = addr
         }
         this.addPhone = (number) => {
             if( this.last_addr ){
@@ -140,7 +137,7 @@ const {Token} = require('./Token');
     }
 
     function processData(data){
-        if( ! data instanceof Array ){
+        if( ! (data instanceof Array) ){
             throw tr('Data must be array')
         }
 
@@ -149,38 +146,49 @@ const {Token} = require('./Token');
         for(let i = 0; i < data.length; i++){
             let item  = data[i]
             let next  = data[i+1]
-            let token = item._token
 
-            if( token === Token.ORGANIZATION_NAME && next._token === Token.ORGANIZATION_NAME ){
-                root.addGroup(item)
+            if( token(item) === Token.ORGANIZATION_NAME && token(next) === Token.ORGANIZATION_NAME ){
+                root.addGroup( new Group(item) )
                 continue
             }
-            else if( token === Token.ORGANIZATION_NAME ){
-                root.addOrg(item)
+            else if( token(item) === Token.ORGANIZATION_NAME ){
+                root.addOrg( new Organization(item) )
                 continue
             }
-            else if( token === Token.STREET_NAME ) {
-                if( next._token === Token.STREET_NUMBER ){
-                    root.addAddress(token, next)
+            else if( token(item) === Token.STREET_NAME ) {
+                if( token(next) === Token.STREET_NUMBER ){
+                    root.addAddress( new Address(item, next) )
                     i++
                     continue
                 }
-                root.addAddress(item, null)
+                root.addAddress( new Address(item, null) )
                 continue
             }
-            else if( token === Token.LITERAL && next._token === Token.PHONE ) {
-                root.addPhone(item, next)
+            else if( token(item) === Token.LITERAL && token(next) === Token.PHONE ) {
+                root.addPhone( new Phone(item, next) )
                 i++
                 continue
             }
-            else if( token === Token.LITERAL && next._token === Token.EMAIL ) {
-                root.addEmail(item, next)
+            else if( token(item) === Token.LITERAL && token(next) === Token.EMAIL ) {
+                root.addEmail( new Email(item, next) )
                 i++
                 continue
             }
-            else if( token === Token.LITERAL && next._token === Token.URL ) {
-                root.addUrl(item, next)
+            else if( token(item) === Token.LITERAL && token(next) === Token.URL ) {
+                root.addUrl( new Url(item, next) )
                 i++
+                continue
+            }
+            else if( token(item) === Token.PHONE ) {
+                root.addPhone( new Phone(null, item) )
+                continue
+            }
+            else if( token(item) === Token.EMAIL ) {
+                root.addEmail( new Email(null, item) )
+                continue
+            }
+            else if( token(item) === Token.URL ) {
+                root.addUrl( new Url(null, item) )
                 continue
             }
         }
@@ -191,7 +199,10 @@ const {Token} = require('./Token');
     fs.readFile(filename, 'utf8', function(err, data){
         if(err) throw err
 
+        //console.log(data)
+        data = JSON.parse(data)
         data = processData(data)
+        console.log(data)
         data = JSON.stringify(data, null, 2)
 
         fs.writeFile(filename+'.conv.json', data, function(err){
@@ -200,4 +211,4 @@ const {Token} = require('./Token');
         })
     })
 
-})( process.argv[1] );
+})( process.argv[2] );
