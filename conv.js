@@ -199,10 +199,8 @@ const {Token} = require('./Token');
     fs.readFile(filename, 'utf8', function(err, data){
         if(err) throw err
 
-        //console.log(data)
         data = JSON.parse(data)
         data = processData(data)
-        console.log(data)
         data = JSON.stringify(data, null, 2)
 
         fs.writeFile(filename+'.conv.json', data, function(err){
